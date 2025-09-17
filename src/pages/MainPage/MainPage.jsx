@@ -1,31 +1,7 @@
-import { useEffect, useState } from "react";
 import { Box, Center, SimpleGrid, Spinner } from "@chakra-ui/react";
-import { randomTenMeals } from "../../../data/recipesFetcher";
 import { MealCard } from "../../components/Card/MealCard";
 
-export const MainPage = () => {
-  const [meals, setMeals] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchMeals = async () => {
-      setIsLoading(true);
-      setError(null);
-      try {
-        const data = await randomTenMeals();
-        setMeals(data);
-      } catch (err) {
-        setError("Failed to load meals");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchMeals();
-  }, []);
-
+export const MainPage = ({meals, isLoading, error}) => {
   return (
     <>
       {isLoading ? (
