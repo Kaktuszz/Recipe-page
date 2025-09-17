@@ -1,8 +1,10 @@
-import { Box, Button, HStack } from "@chakra-ui/react";
+import { Box, HStack } from "@chakra-ui/react";
 import { Input, InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
+import { NativeSelect } from "@chakra-ui/react";
 
-export const Navbar = () => {
+
+export const Navbar = ({categories, areas}) => {
   return (
     <Box mt="10px" mb="10px"  px="10px">
       <Box>
@@ -12,9 +14,31 @@ export const Navbar = () => {
       </Box>
       <Box mt="5px" mb="5px">
         <HStack  wrap="wrap">
-          <Button size="xs" variant="ghost">Categories</Button>
-          <Button size="xs"  variant="ghost">Countries</Button>
-          <Button size="xs"  variant="ghost">Favourites</Button>
+          <NativeSelect.Root>
+            <NativeSelect.Field placeholder="Categories">
+              {categories.map((category)=>(
+                <option key={category.idCategory} value={category.idCategory}>{category.strCategory}</option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <NativeSelect.Root>
+            <NativeSelect.Field placeholder="Countries">
+              {areas.map((area, index)=>(
+                <option key={`a${index}`} value={area.strArea}>{area.strArea}</option>
+              ))}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          <NativeSelect.Root>
+            <NativeSelect.Field placeholder="Favourites">
+              <option value="1">1</option>
+              <option value="1">2</option>
+              <option value="1">3</option>
+              <option value="1">4</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
         </HStack>
       </Box>
       </Box>
