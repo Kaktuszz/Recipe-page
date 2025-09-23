@@ -104,6 +104,21 @@ export const mealAreas = async () => {
   }
 };
 
+export const mealsByArea = async (area) => {
+  let apiLink = "https://www.themealdb.com/api/json/v1/1/filter.php?a=" + area;
+
+  try {
+    const response = await fetch(apiLink);
+    if (!response.ok) {
+      throw new Error(`Response status: ${response.status}`);
+    }
+    const json = await response.json();
+    return json.meals;
+  } catch (error) {
+    console.error(error.message);
+  }
+};
+
 export const mealIngredients = async () => {
   let apiLink =
     "https://https://www.themealdb.com/api/json/v1/1/list.php?i=list";
