@@ -1,7 +1,7 @@
 import { Box, Center, SimpleGrid, Spinner } from "@chakra-ui/react";
 import { MealCard } from "../../components/Card/MealCard";
 
-export const MainPage = ({meals, isLoading, error}) => {
+export const MainPage = ({ meals, isLoading, error, category }) => {
   return (
     <>
       {isLoading ? (
@@ -14,7 +14,9 @@ export const MainPage = ({meals, isLoading, error}) => {
         </Center>
       ) : (
         <Box>
-          <Box p="13px" textStyle="2xl">Random meals</Box>
+          <Box p="13px" textStyle="2xl">
+            {category.length > 0 ? `${category} meals` : "Random meals"}
+          </Box>
           <SimpleGrid px="10px" columns="2">
             {meals.map((meal, index) => (
               <MealCard
@@ -22,7 +24,11 @@ export const MainPage = ({meals, isLoading, error}) => {
                 idMeal={meal.idMeal}
                 image={meal.strMealThumb}
                 mealName={meal.strMeal}
-                description={meal.strCategory || "No description"}
+                description={
+                  category.length > 0
+                    ? category
+                    : meal.strCategory || "No description"
+                }
               />
             ))}
           </SimpleGrid>
