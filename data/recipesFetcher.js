@@ -119,6 +119,30 @@ export const mealsByArea = async (area) => {
   }
 };
 
+export const mealsByAreaAndCategory = async (area, category) => {
+  try {
+    const [mealsFromArea, mealsFromCategory] = await Promise.all([
+      mealsByArea(area),
+      mealsByCategory(category),
+    ]);
+
+    if (!mealsFromArea || !mealsFromCategory) {
+      return [];
+    }
+
+    const areaMealIds = new Set(mealsFromArea.map((meal) => meal.idMeal));
+
+    const filteredMeals = mealsFromCategory.filter((meal) =>
+      areaMealIds.has(meal.idMeal)
+    );
+
+    return filteredMeals;
+  } catch (error) {
+    console.error("Error filtering by area and category:", error);
+    return [];
+  }
+};
+
 export const mealIngredients = async () => {
   let apiLink =
     "https://https://www.themealdb.com/api/json/v1/1/list.php?i=list";

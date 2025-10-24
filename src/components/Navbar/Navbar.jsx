@@ -1,26 +1,60 @@
+import { useState } from "react";
 import { Box, HStack } from "@chakra-ui/react";
 import { Input, InputGroup } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { NativeSelect } from "@chakra-ui/react";
 
-export const Navbar = ({ categories, areas, setCategory, setArea }) => {
+export const Navbar = ({
+  categories,
+  areas,
+  category,
+  area,
+  onCategoryChange,
+  onAreaChange,
+  onSearchSubmit,
+}) => {
+  const [inputValue, setInputValue] = useState("");
+
   const categoryHandler = (e) => {
-    setCategory(e.target.value);
+    onCategoryChange(e.target.value);
   };
 
   const areaHandler = (e) => {
-    setArea(e.target.value);
+    onAreaChange(e.target.value);
   };
+
+  const handleSearchChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    if (inputValue.trim()) {
+      onSearchSubmit(inputValue.trim());
+      setInputValue("");
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
   return (
     <Box mt="10px" mb="10px" px="10px">
       <Box>
-        <InputGroup flex="1" endElement={<LuSearch />}>
-          <Input placeholder="Search meals" />
+        <InputGroup flex="1" endElement={<LuSearch onClick={handleSubmit} />}>
+          <Input
+            placeholder="Search meals by name"
+            value={inputValue}
+            onChange={handleSearchChange}
+            onKeyDown={handleKeyDown}
+          />
         </InputGroup>
       </Box>
       <Box mt="5px" mb="5px">
         <HStack wrap="wrap">
-          <NativeSelect.Root onChange={categoryHandler}>
+          <NativeSelect.Root value={category} onChange={categoryHandler}>
             <NativeSelect.Field placeholder="Categories">
               {categories.map((category) => (
                 <option key={category.idCategory} value={category.strCategory}>
@@ -30,7 +64,7 @@ export const Navbar = ({ categories, areas, setCategory, setArea }) => {
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
-          <NativeSelect.Root onChange={areaHandler}>
+          <NativeSelect.Root value={area} onChange={areaHandler}>
             <NativeSelect.Field placeholder="Countries">
               {areas.map((area, index) => (
                 <option key={`a${index}`} value={area.strArea}>
