@@ -3,7 +3,12 @@ import { Provider } from "./components/ui/provider";
 import { Navbar } from "./components/Navbar/Navbar";
 import { MainPage } from "./pages/MainPage/MainPage";
 import { MealPage } from "./pages/MealPage/MealPage";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useLocation,
+} from "react-router-dom";
 import {
   mealCategories,
   mealAreas,
@@ -14,37 +19,35 @@ import {
   mealsByAreaAndCategory,
 } from "../data/recipesFetcher";
 import { useState, useEffect } from "react";
+import { getMealsFromLocalStorage } from "../data/localDataFunctions";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [areas, setAreas] = useState([]);
   const [meals, setMeals] = useState([]);
+  const [favouriteMeals, setFavouriteMeals] = useState([]);
   const [error, setError] = useState(null);
 
   const [category, setCategory] = useState("");
   const [area, setArea] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [favouritesUpdate, setFavouritesUpdate] = useState(true);
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (categories.length === 0) {
-        setIsLoading(true);
-        setError(null);
-        try {
-          const categoriesData = await mealCategories();
-          const areasData = await mealAreas();
-          const filteredAreas = areasData.filter(
-            (area) => area.strArea !== "Russian"
-          );
-          setCategories(categoriesData);
-          setAreas(filteredAreas);
-        } catch (err) {
-          setError("Failed to load initial data");
-          console.error(err);
-        } finally {
-          setIsLoading(false);
-        }
+      setIsLoading(true);
+      try {
+        const categoriesData = await mealCategories();
+        const areasData = await mealAreas();
+        const filteredAreas = areasData.filter((a) => a.strArea !== "Russian");
+        setCategories(categoriesData);
+        setAreas(filteredAreas);
+      } catch (err) {
+        setError("Failed to load initial data");
+        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchInitialData();
@@ -53,12 +56,12 @@ function App() {
   useEffect(() => {
     const fetchMeals = async () => {
       if (categories.length === 0) return;
-
       setIsLoading(true);
       setError(null);
-      let mealData = [];
 
       try {
+        let mealData = [];
+
         if (searchTerm) {
           mealData = await receiptByName(searchTerm);
         } else if (category && area) {
@@ -71,7 +74,7 @@ function App() {
           mealData = await randomTenMeals();
         }
 
-        if (mealData === null) {
+        if (!mealData) {
           setError("No meals found for your selection.");
           setMeals([]);
         } else {
@@ -80,7 +83,6 @@ function App() {
       } catch (err) {
         setError("Failed to load meals");
         console.error(err);
-        setMeals([]);
       } finally {
         setIsLoading(false);
       }
@@ -88,6 +90,14 @@ function App() {
 
     fetchMeals();
   }, [category, area, searchTerm, categories]);
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname === "/favourites") {
+      const favs = getMealsFromLocalStorage();
+      setFavouriteMeals(favs);
+    }
+  }, [favouritesUpdate, location.pathname]);
 
   const handleCategoryChange = (newCategory) => {
     setCategory(newCategory);
@@ -104,39 +114,91 @@ function App() {
     setCategory("");
     setArea("");
   };
-  const titleString = searchTerm
-    ? searchTerm
-    : [area, category].filter(Boolean).join(" ");
+
+  const resetToRandom = () => {
+    setSearchTerm("");
+    setCategory("");
+    setArea("");
+  };
+
+  const titleString =
+    searchTerm || [area, category].filter(Boolean).join(" ") || "";
+
   return (
     <Provider>
-      <Router>
-        <Navbar
-          categories={categories}
-          areas={areas}
-          category={category}
-          area={area}
-          onCategoryChange={handleCategoryChange}
-          onAreaChange={handleAreaChange}
-          onSearchSubmit={handleSearchSubmit}
+      <Navbar
+        categories={categories}
+        areas={areas}
+        category={category}
+        area={area}
+        onCategoryChange={handleCategoryChange}
+        onAreaChange={handleAreaChange}
+        onSearchSubmit={handleSearchSubmit}
+        onReset={resetToRandom}
+        
+      />
+
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <MainPage
+              meals={meals}
+              isLoading={isLoading}
+              error={error}
+              category={category || area}
+              title={titleString}
+              isFavourites={false}
+            />
+          }
         />
-        <Routes>
-          <Route
-            path="/"
-            element={
-              <MainPage
-                meals={meals}
-                isLoading={isLoading}
-                error={error}
-                category={category || area}
-                title={titleString}
-              />
-            }
-          />
-          <Route path="/meal/:idMeal" element={<MealPage />} />
-        </Routes>
-      </Router>
+
+        <Route
+          path="/search"
+          element={
+            <MainPage
+              meals={meals}
+              isLoading={isLoading}
+              error={error}
+              category={category || area}
+              title={titleString}
+              isFavourites={false}
+            />
+          }
+        />
+
+        <Route
+          path="/meal/:idMeal"
+          element={
+            <MealPage
+              setFavouritesUpdate={setFavouritesUpdate}
+              favouritesUpdate={favouritesUpdate}
+            />
+          }
+        />
+
+        <Route
+          path="/favourites"
+          element={
+            <MainPage
+              meals={favouriteMeals}
+              isLoading={false}
+              error={null}
+              category="Favourites"
+              title="Favourites"
+              isFavourites={true}
+            />
+          }
+        />
+      </Routes>
     </Provider>
   );
 }
 
-export default App;
+export default function AppWrapper() {
+  return (
+    <Router>
+      <App />
+    </Router>
+  );
+}

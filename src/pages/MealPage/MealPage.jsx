@@ -16,7 +16,7 @@ import {
   removeRecipeFromLocalStorage,
 } from "../../../data/localDataFunctions.js";
 
-export const MealPage = () => {
+export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   const { idMeal } = useParams();
   const [meal, setMeal] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,14 +71,13 @@ export const MealPage = () => {
     if (isFavourite) {
       removeRecipeFromLocalStorage(idMeal);
       setIsFavourite(false);
+      setFavouritesUpdate(!favouritesUpdate);
     } else {
       setRecipeToLocalStorage(
         idMeal,
         meal.strMealThumb,
         meal.strMeal,
-        meal.strCategory,
-        ingredients,
-        meal.strInstructions
+        meal.strCategory
       );
       setIsFavourite(true);
     }

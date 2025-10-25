@@ -1,18 +1,14 @@
 export const setRecipeToLocalStorage = (
   idMeal,
-  imageMeal,
-  nameMeal,
+  strMealThumb,
+  strMeal,
   categoryMeal,
-  ingredients,
-  instructions
 ) => {
   const jsonData = {
     idMeal,
-    imageMeal,
-    nameMeal,
+    strMealThumb,
+    strMeal,
     categoryMeal,
-    ingredients,
-    instructions,
   };
 
   let items = JSON.parse(localStorage.getItem("meals")) || [];
@@ -39,3 +35,13 @@ export const removeRecipeFromLocalStorage = (idMeal) => {
 
   localStorage.setItem("meals", JSON.stringify(updatedItems));
 };
+
+
+export const getMealsFromLocalStorage = () => {
+    try {
+      return JSON.parse(localStorage.getItem("meals")) || [];
+    } catch (e) {
+      console.error("Failed to parse meals from localStorage", e);
+      return [];
+    }
+  };
