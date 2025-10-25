@@ -39,15 +39,13 @@ export const Navbar = ({
 
   const handleSearchChange = (e) => setInputValue(e.target.value);
 
-const handleSubmit = () => {
-  if (inputValue.trim()) {
-    onSearchSubmit(inputValue.trim());
-    onCategoryChange("");
-    onAreaChange("");
-    setInputValue("");
-    navigate("/search");
-  }
-};
+  const handleSubmit = () => {
+    if (inputValue.trim()) {
+      onSearchSubmit(inputValue.trim());
+      setInputValue("");
+      navigate("/search");
+    }
+  };
 
   const handleKeyDown = (e) => e.key === "Enter" && handleSubmit() && onReset();
 
