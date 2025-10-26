@@ -20,6 +20,7 @@ import {
 } from "../data/recipesFetcher";
 import { useState, useEffect } from "react";
 import { getMealsFromLocalStorage } from "../data/localDataFunctions";
+import { ConverterPage } from "./pages/ConverterPage/ConverterPage";
 
 function App() {
   const [isLoading, setIsLoading] = useState(false);
@@ -190,6 +191,8 @@ function App() {
             />
           }
         />
+
+        <Route path="/converter" element={<ConverterPage />} />
       </Routes>
     </Provider>
   );
