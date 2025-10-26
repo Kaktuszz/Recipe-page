@@ -67,6 +67,10 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
     .filter((key) => key.startsWith("strIngredient") && meal[key])
     .map((key) => meal[key]);
 
+  const measurements = Object.keys(meal)
+    .filter((key) => key.startsWith("strMeasure") && meal[key])
+    .map((key) => meal[key]);
+
   const toggleFavourite = () => {
     if (isFavourite) {
       removeRecipeFromLocalStorage(idMeal);
@@ -109,7 +113,9 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
           <Checkbox.Root key={index} my="1">
             <Checkbox.HiddenInput />
             <Checkbox.Control />
-            <Checkbox.Label>{ing}</Checkbox.Label>
+            <Checkbox.Label>
+              {ing} {measurements[index] ? `- ${measurements[index]}` : ""}
+            </Checkbox.Label>
           </Checkbox.Root>
         ))}
       </Checkbox.Group>
