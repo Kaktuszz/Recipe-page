@@ -1,10 +1,20 @@
-import { useState, useEffect } from "react";
-import { Box, Center, HStack, Tabs } from "@chakra-ui/react";
-import { Input, InputGroup } from "@chakra-ui/react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  Center,
+  HStack,
+  Tabs,
+  Portal,
+  Spinner,
+  Span,
+  Combobox,
+  useListCollection,
+  NativeSelect,
+} from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
-import { NativeSelect } from "@chakra-ui/react";
 import { FaHome, FaStar } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
+import { receiptByName } from "../../../data/recipesFetcher"; // adjust path if needed
 
 export const Navbar = ({
   categories,
@@ -18,40 +28,64 @@ export const Navbar = ({
 }) => {
   const [inputValue, setInputValue] = useState("");
   const [activeTab, setActiveTab] = useState("/");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const fetchTimeout = useRef(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { collection, set } = useListCollection({
+    initialItems: [],
+    itemToString: (item) => item.strMeal,
+    itemToValue: (item) => item.strMeal,
+  });
+
+  useEffect(() => {
+    if (fetchTimeout.current) clearTimeout(fetchTimeout.current);
+
+    if (!inputValue || inputValue.trim().length < 2) {
+      set([]);
+      return;
+    }
+
+    fetchTimeout.current = setTimeout(async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await receiptByName(inputValue);
+        set(data || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }, 400);
+
+    return () => clearTimeout(fetchTimeout.current);
+  }, [inputValue, set]);
+
   useEffect(() => {
     if (location.pathname.startsWith("/meal")) return;
-    if (location.pathname === "/favourites") {
-      setActiveTab("/favourites");
-    } else if (location.pathname === "/search") {
+    if (location.pathname === "/favourites") setActiveTab("/favourites");
+    else if (location.pathname === "/search") setActiveTab("/search");
+    else if (location.pathname === "/" && (category || area || inputValue))
       setActiveTab("/search");
-    } else if (location.pathname === "/" && (category || area || inputValue)) {
-      setActiveTab("/search");
-    } else {
-      setActiveTab("/");
-    }
+    else setActiveTab("/");
   }, [location.pathname, category, area, inputValue]);
 
   const categoryHandler = (e) => onCategoryChange(e.target.value);
   const areaHandler = (e) => onAreaChange(e.target.value);
 
-  const handleSearchChange = (e) => setInputValue(e.target.value);
-
-  const handleSubmit = () => {
-    if (inputValue.trim()) {
+  const handleEnter = (e) => {
+    if (e.key === "Enter" && inputValue.trim()) {
       onSearchSubmit(inputValue.trim());
-      setInputValue("");
       navigate("/search");
     }
   };
 
-  const handleKeyDown = (e) => e.key === "Enter" && handleSubmit() && onReset();
-
   const handleTabClick = (tabValue) => {
     setActiveTab(tabValue);
-
     if (tabValue === "/") {
       onReset();
       navigate("/");
@@ -67,53 +101,87 @@ export const Navbar = ({
       <Center>
         <Tabs.Root variant="enclosed" size="md" mb="10px" value={activeTab}>
           <Tabs.List>
-            <Tabs.Trigger
-              value="/"
-              px="21px"
-              onClick={() => handleTabClick("/")}
-            >
+            <Tabs.Trigger value="/" px="21px" onClick={() => handleTabClick("/")}>
               <FaHome /> Main Page
             </Tabs.Trigger>
-            <Tabs.Trigger
-              value="/search"
-              onClick={() => handleTabClick("/search")}
-            >
+            <Tabs.Trigger value="/search" onClick={() => handleTabClick("/search")}>
               <LuSearch /> Search
             </Tabs.Trigger>
-            <Tabs.Trigger
-              value="/favourites"
-              onClick={() => handleTabClick("/favourites")}
-            >
+            <Tabs.Trigger value="/favourites" onClick={() => handleTabClick("/favourites")}>
               <FaStar /> Favourites
             </Tabs.Trigger>
             <Tabs.Indicator />
           </Tabs.List>
         </Tabs.Root>
       </Center>
+
       {activeTab === "/search" && (
         <>
           <Box>
-            <InputGroup
-              flex="1"
-              endElement={<LuSearch onClick={handleSubmit} />}
+            <Combobox.Root
+              width="100%"
+              collection={collection}
+              onInputValueChange={(e) => setInputValue(e.inputValue)}
+              positioning={{ sameWidth: true, placement: "bottom-start" }}
             >
-              <Input
-                placeholder="Search meals by name"
-                value={inputValue}
-                onChange={handleSearchChange}
-                onKeyDown={handleKeyDown}
-              />
-            </InputGroup>
+              <Combobox.Control>
+                <Combobox.Input
+                  placeholder="Search meals by name..."
+                  onKeyDown={handleEnter}
+                />
+                <Combobox.IndicatorGroup>
+                  {loading && <Spinner size="xs" />}
+                  <Combobox.ClearTrigger />
+                  <Combobox.Trigger />
+                </Combobox.IndicatorGroup>
+              </Combobox.Control>
+
+              <Portal>
+                <Combobox.Positioner>
+                  <Combobox.Content minW="sm">
+                    {loading ? (
+                      <HStack p="2">
+                        <Spinner size="xs" borderWidth="1px" />
+                        <Span>Loading...</Span>
+                      </HStack>
+                    ) : error ? (
+                      <Span p="2" color="fg.error">
+                        Error fetching
+                      </Span>
+                    ) : collection.items?.length ? (
+                      collection.items.map((meal) => (
+                        <Combobox.Item key={meal.idMeal} item={meal}>
+                          <HStack justify="space-between" textStyle="sm">
+                            <Span fontWeight="medium" truncate>
+                              {meal.strMeal}
+                            </Span>
+                            <Span color="fg.muted" truncate>
+                              {meal.strCategory ?? ""}
+                            </Span>
+                          </HStack>
+                          <Combobox.ItemIndicator />
+                        </Combobox.Item>
+                      ))
+                    ) : (
+                      inputValue && (
+                        <Span p="2" color="fg.muted">
+                          No results found
+                        </Span>
+                      )
+                    )}
+                  </Combobox.Content>
+                </Combobox.Positioner>
+              </Portal>
+            </Combobox.Root>
           </Box>
+
+          {/* Filters */}
           <Box mt="5px" mb="5px">
             <HStack wrap="wrap">
               <NativeSelect.Root value={category} onChange={categoryHandler}>
                 <NativeSelect.Field placeholder="Categories">
                   {categories.map((category) => (
-                    <option
-                      key={category.idCategory}
-                      value={category.strCategory}
-                    >
+                    <option key={category.idCategory} value={category.strCategory}>
                       {category.strCategory}
                     </option>
                   ))}

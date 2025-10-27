@@ -8,6 +8,7 @@ import {
   Center,
   Checkbox,
   IconButton,
+  Link,
 } from "@chakra-ui/react";
 import { receiptById } from "../../../data/recipesFetcher";
 import { FaRegStar, FaStar } from "react-icons/fa";
@@ -15,12 +16,14 @@ import {
   setRecipeToLocalStorage,
   removeRecipeFromLocalStorage,
 } from "../../../data/localDataFunctions.js";
+import { useNavigate } from "react-router-dom";
 
 export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   const { idMeal } = useParams();
   const [meal, setMeal] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavourite, setIsFavourite] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMeal = async () => {
@@ -119,6 +122,15 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
           </Checkbox.Root>
         ))}
       </Checkbox.Group>
+      <Text textStyle="sm">
+        Try our units converter!{" "}
+        <span role="img" aria-label="Emoji finger points to link">
+          👉
+        </span>{" "}
+        <Link onClick={() => navigate(`/converter`)} variant="underline">
+          Click
+        </Link>
+      </Text>
       <Text textStyle="xl">Instructions</Text>
       <Text textStyle="lg" py="15px">
         {meal.strInstructions}
