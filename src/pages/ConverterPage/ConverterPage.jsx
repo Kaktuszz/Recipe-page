@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, NativeSelect, NumberInput } from "@chakra-ui/react";
+import { Box, Center, NativeSelect, NumberInput } from "@chakra-ui/react";
 import { Heading } from "@chakra-ui/react";
 import { convert } from "../../../data/converter";
 
@@ -59,7 +59,8 @@ export const ConverterPage = () => {
   }, [unitToValue, unitFrom, unitTo, ingredient, lastChanged]);
 
   return (
-    <Box p="13px" display="flex" flexDirection="column" gap="12px">
+    <Center>
+    <Box p="13px" display="flex" flexDirection="column" gap="12px" maxWidth="1202px">
       <Heading size="2xl">Convert ingredient measurments</Heading>
       <NativeSelect.Root>
         <NativeSelect.Field value={ingredient} onChange={ingredientHandler}>
@@ -131,5 +132,6 @@ export const ConverterPage = () => {
         Supported units: g, kg, oz, lb, ml, l, tsp, tbsp, cup.
       </Box>
     </Box>
+    </Center>
   );
 };
