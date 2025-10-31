@@ -22,7 +22,9 @@ export const MainPage = ({
           </Text>
         </Center>
       ) : (
+        <Center>
         <Box>
+          
           {isFavourites ? (
             <Box p="13px" textStyle="2xl">
               Favourite recipes
@@ -32,9 +34,8 @@ export const MainPage = ({
               {title.length > 0 ? `${title} meals` : "Random meals"}
             </Box>
           )}
-
           {meals.length > 0 ? (
-            <SimpleGrid px="10px" columns="2">
+            <SimpleGrid px="10px" columns={[2,3]}>
               {meals.map((meal, index) => (
                 <MealCard
                   key={index}
@@ -56,7 +57,9 @@ export const MainPage = ({
               </Text>
             </Center>
           )}
+          
         </Box>
+        </Center>
       )}
     </>
   );

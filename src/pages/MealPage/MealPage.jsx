@@ -9,6 +9,8 @@ import {
   Checkbox,
   IconButton,
   Link,
+  SimpleGrid,
+  Separator,
 } from "@chakra-ui/react";
 import { receiptById } from "../../../data/recipesFetcher";
 import { FaRegStar, FaStar } from "react-icons/fa";
@@ -91,50 +93,73 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   };
 
   return (
-    <Box p="13px">
-      <Image src={meal.strMealThumb} rounded="md" />
-      <Text textStyle="4xl">
-        {meal.strMeal}{" "}
-        <IconButton
-          aria-label="Add to favourites"
-          size="lg"
-          rounded="full"
-          variant="outline"
-          onClick={toggleFavourite}
-        >
-          {isFavourite ? (
-            <FaStar style={{ color: "gold" }} />
-          ) : (
-            <FaRegStar style={{ color: "gold" }} />
-          )}
-        </IconButton>
-      </Text>
-      <Text textStyle="md">{meal.strCategory}</Text>
+    
+<Box w="100%">
+  <Center w="100%" px="20px">
+    <Box w="100%" maxW="1202px">
+      <SimpleGrid p="13px" columns={[1, 2]} spacing="20px">
+        <Image src={meal.strMealThumb} rounded="md" />
 
-      <Checkbox.Group p="15px" sx={{ columnCount: [1, 2], columnGap: "2rem" }}>
-        {ingredients.map((ing, index) => (
-          <Checkbox.Root key={index} my="1">
-            <Checkbox.HiddenInput />
-            <Checkbox.Control />
-            <Checkbox.Label>
-              {ing} {measurements[index] ? `- ${measurements[index]}` : ""}
-            </Checkbox.Label>
-          </Checkbox.Root>
-        ))}
-      </Checkbox.Group>
-      <Text textStyle="sm">
-        Try our units converter!{" "}
-        <span role="img" aria-label="Emoji finger points to link">
-          👉
-        </span>{" "}
-        <Link onClick={() => navigate(`/converter`)} variant="underline">
-          Click
-        </Link>
-      </Text>
-      <Text textStyle="xl">Instructions</Text>
-      <Text textStyle="lg" py="15px">
-        {meal.strInstructions}
-      </Text>
+        <Box mx={[0, "10px"]}>
+          <Text textStyle="4xl" display="flex" alignItems="center" gap="10px">
+            {meal.strMeal}
+            <IconButton
+              aria-label="Add to favourites"
+              size="lg"
+              rounded="full"
+              variant="outline"
+              onClick={toggleFavourite}
+            >
+              {isFavourite ? (
+                <FaStar style={{ color: "gold" }} />
+              ) : (
+                <FaRegStar style={{ color: "gold" }} />
+              )}
+            </IconButton>
+          </Text>
+
+          <Text textStyle="md" mb="10px">
+            {meal.strCategory}
+          </Text>
+
+          <Checkbox.Group
+            p="15px"
+            sx={{ columnCount: [1,1,,1, 2], columnGap: "2rem" }}
+          >
+            {ingredients.map((ing, index) => (
+              <Checkbox.Root key={index} my="1">
+                <Checkbox.HiddenInput />
+                <Checkbox.Control />
+                <Checkbox.Label>
+                  {ing} {measurements[index] ? `- ${measurements[index]}` : ""}
+                </Checkbox.Label>
+              </Checkbox.Root>
+            ))}
+          </Checkbox.Group>
+
+          <Text textStyle="sm">
+            Try our units converter!{" "}
+            <span role="img" aria-label="Emoji finger points to link">
+              👉
+            </span>{" "}
+            <Link onClick={() => navigate(`/converter`)} variant="underline">
+              Click
+            </Link>
+          </Text>
+        </Box>
+
+        <Box pt="10px">
+          <Separator />
+          <Text textStyle="xl">Instructions</Text>
+          <Text textStyle="lg" py="15px">
+            {meal.strInstructions}
+          </Text>
+        </Box>
+      </SimpleGrid>
     </Box>
+  </Center>
+</Box>
+
+    
   );
 };
