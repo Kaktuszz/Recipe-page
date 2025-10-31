@@ -117,7 +117,8 @@ export const Navbar = ({
       </Center>
 
       {activeTab === "/search" && (
-        <>
+        <Center  w="100%">
+        <Box w="100%" maxW="1180px">
           <Box>
             <Combobox.Root
               width="100%"
@@ -204,7 +205,8 @@ export const Navbar = ({
               </NativeSelect.Root>
             </HStack>
           </Box>
-        </>
+        </Box>
+        </Center>
       )}
     </Box>
   );
