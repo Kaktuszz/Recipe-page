@@ -10,6 +10,7 @@ import {
   Combobox,
   useListCollection,
   NativeSelect,
+  InputGroup,
 } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { FaHome, FaStar } from "react-icons/fa";
@@ -125,14 +126,16 @@ export const Navbar = ({
               positioning={{ sameWidth: true, placement: "bottom-start" }}
             >
               <Combobox.Control>
+              <InputGroup startElement={<LuSearch />}>
+              
                 <Combobox.Input
                   placeholder="Search meals by name..."
                   onKeyDown={handleEnter}
                 />
+                </InputGroup>
                 <Combobox.IndicatorGroup>
                   {loading && <Spinner size="xs" />}
                   <Combobox.ClearTrigger />
-                  <Combobox.Trigger />
                 </Combobox.IndicatorGroup>
               </Combobox.Control>
 
