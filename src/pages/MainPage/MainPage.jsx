@@ -33,21 +33,29 @@ export const MainPage = ({
             </Box>
           )}
 
-          <SimpleGrid px="10px" columns="2">
-            {meals.map((meal, index) => (
-              <MealCard
-                key={index}
-                idMeal={meal.idMeal}
-                image={meal.strMealThumb}
-                mealName={meal.strMeal}
-                description={
-                  category.length > 0
-                    ? category
-                    : meal.strCategory || "No description"
-                }
-              />
-            ))}
-          </SimpleGrid>
+          {meals.length > 0 ? (
+            <SimpleGrid px="10px" columns="2">
+              {meals.map((meal, index) => (
+                <MealCard
+                  key={index}
+                  idMeal={meal.idMeal}
+                  image={meal.strMealThumb}
+                  mealName={meal.strMeal}
+                  description={
+                    category.length > 0
+                      ? category
+                      : meal.strCategory || "No description"
+                  }
+                />
+              ))}
+            </SimpleGrid>
+          ) : (
+            <Center py="10">
+              <Text fontSize="lg" color="gray.600">
+                No meals found for your selection.
+              </Text>
+            </Center>
+          )}
         </Box>
       )}
     </>
