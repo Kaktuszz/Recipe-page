@@ -80,6 +80,8 @@ export const Navbar = ({
 
   const handleEnter = (e) => {
     if (e.key === "Enter" && inputValue.trim()) {
+      e.preventDefault();
+      e.stopPropagation();
       onSearchSubmit(inputValue.trim());
       navigate("/search");
     }
