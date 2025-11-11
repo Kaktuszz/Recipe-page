@@ -18,7 +18,7 @@ import {
   setRecipeToLocalStorage,
   removeRecipeFromLocalStorage,
 } from "../../../data/localDataFunctions.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   const { idMeal } = useParams();
@@ -26,6 +26,15 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isFavourite, setIsFavourite] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const breadcrumbsForConverter = location.state?.breadcrumbs ?? [
+    {
+      name: location.state?.fromLabel ?? "Main Page",
+      path: location.state?.fromPath ?? "/",
+    },
+    { name: location.state?.mealName ?? "Meal", path: location.pathname },
+  ];
 
   useEffect(() => {
     const fetchMeal = async () => {
@@ -93,73 +102,89 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   };
 
   return (
-    
-<Box w="100%">
-  <Center w="100%" px="20px">
-    <Box w="100%" maxW="1202px">
-      <SimpleGrid p="13px" columns={[1, 2]} spacing="20px">
-        <Image src={meal.strMealThumb} rounded="md" />
+    <Box w="100%">
+      <Center w="100%" px="20px">
+        <Box w="100%" maxW="1202px">
+          <SimpleGrid p="13px" columns={[1, 2]} spacing="20px">
+            <Image src={meal.strMealThumb} rounded="md" />
 
-        <Box mx={[0, "10px"]}>
-          <Text textStyle="4xl" display="flex" alignItems="center" gap="10px">
-            {meal.strMeal}
-            <IconButton
-              aria-label="Add to favourites"
-              size="lg"
-              rounded="full"
-              variant="outline"
-              onClick={toggleFavourite}
-            >
-              {isFavourite ? (
-                <FaStar style={{ color: "gold" }} />
-              ) : (
-                <FaRegStar style={{ color: "gold" }} />
-              )}
-            </IconButton>
-          </Text>
+            <Box mx={[0, "10px"]}>
+              <Text
+                textStyle="4xl"
+                display="flex"
+                alignItems="center"
+                gap="10px"
+              >
+                {meal.strMeal}
+                <IconButton
+                  aria-label="Add to favourites"
+                  size="lg"
+                  rounded="full"
+                  variant="outline"
+                  onClick={toggleFavourite}
+                >
+                  {isFavourite ? (
+                    <FaStar style={{ color: "gold" }} />
+                  ) : (
+                    <FaRegStar style={{ color: "gold" }} />
+                  )}
+                </IconButton>
+              </Text>
 
-          <Text textStyle="md" mb="10px">
-            {meal.strCategory}
-          </Text>
+              <Text textStyle="md" mb="10px">
+                {meal.strCategory}
+              </Text>
 
-          <Checkbox.Group
-            p="15px"
-            sx={{ columnCount: [1,1,,1, 2], columnGap: "2rem" }}
-          >
-            {ingredients.map((ing, index) => (
-              <Checkbox.Root key={index} my="1">
-                <Checkbox.HiddenInput />
-                <Checkbox.Control />
-                <Checkbox.Label>
-                  {ing} {measurements[index] ? `- ${measurements[index]}` : ""}
-                </Checkbox.Label>
-              </Checkbox.Root>
-            ))}
-          </Checkbox.Group>
+              <Checkbox.Group
+                p="15px"
+                sx={{ columnCount: [1, 1, , 1, 2], columnGap: "2rem" }}
+              >
+                {ingredients.map((ing, index) => (
+                  <Checkbox.Root key={index} my="1">
+                    <Checkbox.HiddenInput />
+                    <Checkbox.Control />
+                    <Checkbox.Label>
+                      {ing}{" "}
+                      {measurements[index] ? `- ${measurements[index]}` : ""}
+                    </Checkbox.Label>
+                  </Checkbox.Root>
+                ))}
+              </Checkbox.Group>
 
-          <Text textStyle="sm">
-            Try our units converter!{" "}
-            <span role="img" aria-label="Emoji finger points to link">
-              👉
-            </span>{" "}
-            <Link onClick={() => navigate(`/converter`)} variant="underline">
-              Click
-            </Link>
-          </Text>
+              <Text textStyle="sm">
+                Try our units converter!{" "}
+                <span role="img" aria-label="Emoji finger points to link">
+                  👉
+                </span>{" "}
+                <Link
+                  onClick={() =>
+                    navigate("/converter", {
+                      state: {
+                        breadcrumbs: breadcrumbsForConverter,
+                        fromLabel: location.state?.fromLabel ?? "Main Page",
+                        fromPath: location.state?.fromPath ?? "/",
+                        mealName: meal.strMeal,
+                        mealPath: location.pathname,
+                      },
+                    })
+                  }
+                  variant="underline"
+                >
+                  Click
+                </Link>
+              </Text>
+            </Box>
+
+            <Box pt="10px">
+              <Separator />
+              <Text textStyle="xl">Instructions</Text>
+              <Text textStyle="lg" py="15px">
+                {meal.strInstructions}
+              </Text>
+            </Box>
+          </SimpleGrid>
         </Box>
-
-        <Box pt="10px">
-          <Separator />
-          <Text textStyle="xl">Instructions</Text>
-          <Text textStyle="lg" py="15px">
-            {meal.strInstructions}
-          </Text>
-        </Box>
-      </SimpleGrid>
+      </Center>
     </Box>
-  </Center>
-</Box>
-
-    
   );
 };
