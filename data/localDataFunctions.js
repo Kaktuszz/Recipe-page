@@ -2,13 +2,13 @@ export const setRecipeToLocalStorage = (
   idMeal,
   strMealThumb,
   strMeal,
-  categoryMeal,
+  strCategory,
 ) => {
   const jsonData = {
     idMeal,
     strMealThumb,
     strMeal,
-    categoryMeal,
+    strCategory,
   };
 
   let items = JSON.parse(localStorage.getItem("meals")) || [];
