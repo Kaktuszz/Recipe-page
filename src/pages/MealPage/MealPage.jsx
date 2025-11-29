@@ -19,6 +19,7 @@ import {
   removeRecipeFromLocalStorage,
 } from "../../../data/localDataFunctions.js";
 import { useNavigate, useLocation } from "react-router-dom";
+import { CommentSection } from "../../components/CommentSection/CommentSection"
 
 export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
   const { idMeal } = useParams();
@@ -181,6 +182,9 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
               <Text textStyle="lg" py="15px">
                 {meal.strInstructions}
               </Text>
+            </Box>
+            <Box mx={[0, "10px"]}>
+              <CommentSection idMeal={idMeal} />
             </Box>
           </SimpleGrid>
         </Box>
