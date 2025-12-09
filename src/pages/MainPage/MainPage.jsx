@@ -20,6 +20,7 @@ export const MainPage = ({
   category,
   title,
   isFavourites,
+  setCookingMode
 }) => {
   const [page, setPage] = useState(1);
   const pageSize = useBreakpointValue({
@@ -30,9 +31,14 @@ export const MainPage = ({
   const end = start + pageSize;
   const currentMeals = meals.slice(start, end);
 
+  useEffect(()=>{
+    setCookingMode(false)
+  }, [])
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [page]);
+
 
   return (
     <>

@@ -10,13 +10,16 @@ import {
   Combobox,
   useListCollection,
   NativeSelect,
-  InputGroup
+  InputGroup,
+  Dialog,
+  Button,
 } from "@chakra-ui/react";
 import { LuSearch } from "react-icons/lu";
 import { FaHome, FaStar } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import { receiptByName } from "../../../data/recipesFetcher";
 import { BreadCrumbs } from "../BreadCrumbs/BreadCrumbs";
+import { AlertDialog } from "../../components/AlertDialog/AlertDialog";
 
 export const Navbar = ({
   categories,
@@ -27,11 +30,13 @@ export const Navbar = ({
   onAreaChange,
   onSearchSubmit,
   onReset,
+  cookingMode,
+  setCookingMode,
 }) => {
   const [inputValue, setInputValue] = useState("");
-  const [activeTab, setActiveTab] = useState("/");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [pendingPath, setPendingPath] = useState(null);
   const fetchTimeout = useRef(null);
 
   const navigate = useNavigate();
@@ -95,20 +100,6 @@ export const Navbar = ({
     return () => clearTimeout(fetchTimeout.current);
   }, [inputValue, set]);
 
-  useEffect(() => {
-    if (
-      location.pathname.startsWith("/meal") ||
-      location.pathname.startsWith("/converter")
-    )
-      return;
-
-    if (location.pathname === "/favourites") setActiveTab("/favourites");
-    else if (location.pathname === "/search") setActiveTab("/search");
-    else if (location.pathname === "/" && (category || area || inputValue))
-      setActiveTab("/search");
-    else setActiveTab("/");
-  }, [location.pathname, category, area, inputValue]);
-
   const categoryHandler = (e) => onCategoryChange(e.target.value);
   const areaHandler = (e) => onAreaChange(e.target.value);
 
@@ -122,21 +113,64 @@ export const Navbar = ({
   };
 
   const handleTabClick = (tabValue) => {
-    setActiveTab(tabValue);
     if (tabValue === "/") {
-      onReset?.();
-      navigate("/", { replace: true });
+      if (cookingMode) {
+        setPendingPath("/");
+      } else {
+        setCookingMode(false);
+        onReset?.();
+        navigate("/");
+      }
     } else if (tabValue === "/search") {
-      navigate("/search");
+      if (cookingMode) {
+        setPendingPath("/search");
+      } else {
+        setCookingMode(false);
+        onReset?.();
+        navigate("/search");
+      }
     } else if (tabValue === "/favourites") {
-      navigate("/favourites");
+      if (cookingMode) {
+        setPendingPath("/favourites");
+      } else {
+        setCookingMode(false);
+        onReset?.();
+        navigate("/favourites");
+      }
     }
+  };
+
+  const confirmNavigation = () => {
+    onReset?.();
+    if (pendingPath) {
+      navigate(pendingPath);
+    }
+    setCookingMode(false);
+    setPendingPath(null);
+  };
+
+  const cancelNavigation = () => {
+    setPendingPath(null);
   };
 
   return (
     <Box mt="10px" mb="10px" px="10px">
+      <AlertDialog
+        open={!!pendingPath}
+        onOpenChange={(details) => !details.open && cancelNavigation()}
+        title="Enabled Shopping Mode"
+        bodyText="You really want to leave this page?"
+        onNo={cancelNavigation}
+        onYes={confirmNavigation}
+      />
+
       <Center>
-        <Tabs.Root variant="enclosed" size="md" mb="10px" value={activeTab}>
+        <Tabs.Root
+          variant="enclosed"
+          size="md"
+          mb="10px"
+          value={location.pathname}
+        >
           <Tabs.List>
             <Tabs.Trigger
               value="/"
@@ -162,7 +196,7 @@ export const Navbar = ({
         </Tabs.Root>
       </Center>
 
-      {activeTab === "/search" && (
+      {location.pathname === "/search" && (
         <Center w="100%">
           <Box w="100%" maxW="1180px">
             <Box>
