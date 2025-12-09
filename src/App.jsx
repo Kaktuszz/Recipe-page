@@ -34,6 +34,7 @@ function App() {
   const [area, setArea] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [favouritesUpdate, setFavouritesUpdate] = useState(true);
+  const [cookingMode, setCookingMode] = useState(false);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -136,7 +137,8 @@ function App() {
         onAreaChange={handleAreaChange}
         onSearchSubmit={handleSearchSubmit}
         onReset={resetToRandom}
-        
+        cookingMode={cookingMode}
+        setCookingMode={setCookingMode}
       />
 
       <Routes>
@@ -150,6 +152,7 @@ function App() {
               category={category || area}
               title={titleString}
               isFavourites={false}
+              setCookingMode={setCookingMode}
             />
           }
         />
@@ -164,6 +167,7 @@ function App() {
               category={category || area}
               title={titleString}
               isFavourites={false}
+              setCookingMode={setCookingMode}
             />
           }
         />
@@ -174,6 +178,8 @@ function App() {
             <MealPage
               setFavouritesUpdate={setFavouritesUpdate}
               favouritesUpdate={favouritesUpdate}
+              cookingMode={cookingMode}
+              setCookingMode={setCookingMode}
             />
           }
         />
@@ -188,6 +194,7 @@ function App() {
               category="Favourites"
               title="Favourites"
               isFavourites={true}
+              setCookingMode={setCookingMode}
             />
           }
         />

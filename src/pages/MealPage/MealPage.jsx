@@ -11,6 +11,8 @@ import {
   Link,
   SimpleGrid,
   Separator,
+  Switch,
+  HStack,
 } from "@chakra-ui/react";
 import { receiptById } from "../../../data/recipesFetcher";
 import { FaRegStar, FaStar } from "react-icons/fa";
@@ -19,15 +21,22 @@ import {
   removeRecipeFromLocalStorage,
 } from "../../../data/localDataFunctions.js";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CommentSection } from "../../components/CommentSection/CommentSection"
+import { CommentSection } from "../../components/CommentSection/CommentSection";
+import { AlertDialog } from "../../components/AlertDialog/AlertDialog";
 
-export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
+export const MealPage = ({
+  setFavouritesUpdate,
+  favouritesUpdate,
+  setCookingMode,
+  cookingMode,
+}) => {
   const { idMeal } = useParams();
   const [meal, setMeal] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFavourite, setIsFavourite] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [pendingPath, setPendingPath] = useState(null);
 
   const breadcrumbsForConverter = location.state?.breadcrumbs ?? [
     {
@@ -102,8 +111,54 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
     }
   };
 
+  const handleConverterClick = () => {
+    if (cookingMode) {
+      setPendingPath("/converter");
+    } else {
+      setCookingMode(false);
+      navigate("/converter", {
+        state: {
+          breadcrumbs: breadcrumbsForConverter,
+          fromLabel: location.state?.fromLabel ?? "Main Page",
+          fromPath: location.state?.fromPath ?? "/",
+          mealName: meal.strMeal,
+          mealPath: location.pathname,
+        },
+      });
+    }
+  };
+
+  const confirmNavigation = () => {
+    if (pendingPath) {
+      navigate(pendingPath, {
+        state: {
+          breadcrumbs: breadcrumbsForConverter,
+          fromLabel: location.state?.fromLabel ?? "Main Page",
+          fromPath: location.state?.fromPath ?? "/",
+          mealName: meal.strMeal,
+          mealPath: location.pathname,
+        },
+      });
+    }
+    setCookingMode(false);
+    setPendingPath(null);
+  };
+
+  const cancelNavigation = () => {
+    setPendingPath(null);
+  };
+
   return (
     <Box w="100%">
+      <AlertDialog
+        open={!!pendingPath}
+        onOpenChange={(details) => !details.open && cancelNavigation()}
+        title="Enabled Shopping Mode"
+        bodyText="You really want to leave this page?"
+        onNo={cancelNavigation}
+        onYes={confirmNavigation}
+      />
+
       <Center w="100%" px="20px">
         <Box w="100%" maxW="1202px">
           <SimpleGrid p="13px" columns={[1, 2]} spacing="20px">
@@ -123,6 +178,9 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
                   rounded="full"
                   variant="outline"
                   onClick={toggleFavourite}
+                  title={
+                    isFavourite ? "Remove from favourites" : "Add to favourites"
+                  }
                 >
                   {isFavourite ? (
                     <FaStar style={{ color: "gold" }} />
@@ -135,42 +193,50 @@ export const MealPage = ({ setFavouritesUpdate, favouritesUpdate }) => {
               <Text textStyle="md" mb="10px">
                 {meal.strCategory}
               </Text>
-
+              <Separator />
               <Checkbox.Group
                 p="15px"
                 sx={{ columnCount: [1, 1, , 1, 2], columnGap: "2rem" }}
               >
+                <HStack mb="2">
+                  <Switch.Root
+                    size="md"
+                    checked={cookingMode}
+                    onCheckedChange={(value) => setCookingMode(value.checked)}
+                    title={
+                      cookingMode
+                        ? "Turn off shopping mode"
+                        : "Turn on shopping mode"
+                    }
+                  >
+                    <Switch.Label textStyle="xl">Shopping mode</Switch.Label>
+                    <Switch.HiddenInput />
+                    <Switch.Control />
+                  </Switch.Root>
+                </HStack>
+
                 {ingredients.map((ing, index) => (
                   <Checkbox.Root key={index} my="1">
                     <Checkbox.HiddenInput />
-                    <Checkbox.Control />
+                    {cookingMode && (
+                      <>
+                        <Checkbox.Control />
+                      </>
+                    )}
                     <Checkbox.Label>
-                      {ing}{" "}
-                      {measurements[index] ? `- ${measurements[index]}` : ""}
+                      {ing}
+                      {measurements[index] ? ` - ${measurements[index]}` : ""}
                     </Checkbox.Label>
                   </Checkbox.Root>
                 ))}
               </Checkbox.Group>
 
               <Text textStyle="sm">
-                Try our units converter!{" "}
+                Try our units converter!
                 <span role="img" aria-label="Emoji finger points to link">
-                  👉
-                </span>{" "}
-                <Link
-                  onClick={() =>
-                    navigate("/converter", {
-                      state: {
-                        breadcrumbs: breadcrumbsForConverter,
-                        fromLabel: location.state?.fromLabel ?? "Main Page",
-                        fromPath: location.state?.fromPath ?? "/",
-                        mealName: meal.strMeal,
-                        mealPath: location.pathname,
-                      },
-                    })
-                  }
-                  variant="underline"
-                >
+                  {"  "}👉{"  "}
+                </span>
+                <Link onClick={handleConverterClick} variant="underline">
                   Click
                 </Link>
               </Text>
