@@ -3,11 +3,11 @@ import {
   Card,
   IconButton,
   Image,
-  useSafeLayoutEffect,
+  Skeleton
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaRegStar, FaStar } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   removeRecipeFromLocalStorage,
   setRecipeToLocalStorage,
@@ -15,8 +15,10 @@ import {
 
 export const MealCard = ({ image, description, mealName, idMeal }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [isFavourite, setIsFavourite] = useState(true);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   const toggleFavourite = () => {
     if (isFavourite) {
@@ -47,7 +49,11 @@ export const MealCard = ({ image, description, mealName, idMeal }) => {
           })
         }
       >
-        <Image src={image} alt="Meal image" />
+        <Skeleton loading={!isImageLoaded} >
+        <Image src={image} alt="Meal image" display={isImageLoaded ? "block" : "none"} // Hide until ready
+          onLoad={() => setIsImageLoaded(true)}
+          onError={() => setIsImageLoaded(true)} />
+          </Skeleton>
         <Card.Body gap="2">
           <Card.Title>{mealName}</Card.Title>
         </Card.Body>
