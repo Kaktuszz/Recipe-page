@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Box,
   Image,
@@ -37,6 +37,7 @@ export const MealPage = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [pendingPath, setPendingPath] = useState(null);
+  const isBackNavigation = useRef(false);
 
   const breadcrumbsForConverter = location.state?.breadcrumbs ?? [
     {
@@ -45,6 +46,29 @@ export const MealPage = ({
     },
     { name: location.state?.mealName ?? "Meal", path: location.pathname },
   ];
+
+  useEffect(() => {
+    if (!cookingMode) return;
+    const handleBeforeUnload = (e) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.history.pushState(null, "", window.location.href);
+
+    const handlePopState = (e) => {
+      e.preventDefault();
+      isBackNavigation.current = true;
+      setPendingPath("GO_BACK");
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [cookingMode]);
 
   useEffect(() => {
     const fetchMeal = async () => {
@@ -113,6 +137,7 @@ export const MealPage = ({
 
   const handleConverterClick = () => {
     if (cookingMode) {
+      isBackNavigation.current = false;
       setPendingPath("/converter");
     } else {
       setCookingMode(false);
@@ -129,7 +154,9 @@ export const MealPage = ({
   };
 
   const confirmNavigation = () => {
-    if (pendingPath) {
+    if (pendingPath === "GO_BACK") {
+      navigate(-1);
+    } else if (pendingPath) {
       navigate(pendingPath, {
         state: {
           breadcrumbs: breadcrumbsForConverter,
@@ -145,6 +172,10 @@ export const MealPage = ({
   };
 
   const cancelNavigation = () => {
+    if (isBackNavigation.current) {
+      window.history.pushState(null, "", window.location.href);
+      isBackNavigation.current = false;
+    }
     setPendingPath(null);
   };
 
