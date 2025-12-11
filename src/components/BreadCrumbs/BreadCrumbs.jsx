@@ -6,7 +6,7 @@ export const BreadCrumbs = ({ pageList }) => {
   const navigate = useNavigate();
   return (
     <Breadcrumb.Root px="13px">
-      <Breadcrumb.List>
+      <Breadcrumb.List cursor="button">
         {pageList.map((page, index) => (
           <React.Fragment key={index}>
             <Breadcrumb.Item >
