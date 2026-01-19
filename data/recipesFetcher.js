@@ -47,7 +47,7 @@ export const randomMeal = async () => {
 
 export const randomTenMeals = async () => {
   try {
-    const mealPromises = Array.from({ length: 10 }, () => randomMeal());
+    const mealPromises = Array.from({ length: 12 }, () => randomMeal());
     const results = await Promise.all(mealPromises);
     return results.flat();
   } catch (error) {

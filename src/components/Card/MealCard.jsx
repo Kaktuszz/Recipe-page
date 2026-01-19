@@ -13,7 +13,7 @@ import {
   setRecipeToLocalStorage,
 } from "../../../data/localDataFunctions";
 
-export const MealCard = ({ image, description, mealName, idMeal }) => {
+export const MealCard = ({ image, description, mealName, idMeal, category }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -50,7 +50,7 @@ export const MealCard = ({ image, description, mealName, idMeal }) => {
         }
       >
         <Skeleton loading={!isImageLoaded} >
-        <Image src={image} alt="Meal image" display={isImageLoaded ? "block" : "none"} // Hide until ready
+        <Image src={image} alt="Meal image" display={isImageLoaded ? "block" : "none"}
           onLoad={() => setIsImageLoaded(true)}
           onError={() => setIsImageLoaded(true)} />
           </Skeleton>
@@ -66,7 +66,7 @@ export const MealCard = ({ image, description, mealName, idMeal }) => {
           display="flex"
           w="100%"
         >
-          <Card.Description>{description}</Card.Description>
+          <Card.Description>{description === undefined ? category : description}</Card.Description>
 
           {location.pathname === "/favourites" && (
             <Card.Description>
